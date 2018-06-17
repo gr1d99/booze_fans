@@ -188,8 +188,8 @@ DEPENDENCIES
   pg (>= 0.18, < 2.0)
   puma (~> 3.7)
   rails (~> 5.1.6)
-  rspec-rails
   simplecov
+  rspec-rails (~> 3.5)
   spring
   spring-watcher-listen (~> 2.0.0)
   tzinfo-data
