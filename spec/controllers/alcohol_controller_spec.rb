@@ -22,12 +22,23 @@ RSpec.describe AlcoholController, type: :controller do
       before(:each) { post :create, params: { name: '', vv: '' } }
 
       it 'returns correct errors' do
-        puts json.inspect
         expect(json['errors'].values).to include(["can't be blank"])
       end
 
       it { expect(response.status).to eq(422) }
       it { expect(Alcohol.find_by_name(name)).to be_nil }
+    end
+  end
+
+  context '.index' do
+    context 'retrieve all alcohols' do
+      before { create(:alcohol) }
+      let!(:total) { Alcohol.count }
+
+      it 'returns all alcohols' do
+        get :index
+        expect(json['total']).to eq(total)
+      end
     end
   end
 end
