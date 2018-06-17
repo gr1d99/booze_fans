@@ -4,8 +4,13 @@ class AlcoholController < ApplicationController
   def create
     @alcohol = Alcohol.create(alcohol_params)
 
-    response = create_alcohol(@alcohol)
-    render json: response
+    alcohol = create_alcohol(@alcohol)
+
+    if alcohol[:created]
+      render json: alcohol, status: :created
+    else
+      render json: alcohol, status: :unprocessable_entity
+    end
 
   end
 
