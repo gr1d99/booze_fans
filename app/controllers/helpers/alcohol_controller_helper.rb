@@ -2,10 +2,9 @@ module AlcoholControllerHelper
   def create_alcohol(alcohol)
     if alcohol.valid?
       alcohol.save
-
-      { alcohol: alcohol, status: 201 }
+      { created: true, alcohol: alcohol }
     else
-      { errors: alcohol.errors, status: 422 }
+      { created: false, errors: alcohol.errors }
     end
   end
 end
