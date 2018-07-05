@@ -2,7 +2,7 @@
 #
 # Check https://circleci.com/docs/2.0/language-ruby/ for more details
 #
-version: 2
+version: 2.o
 jobs:
   build:
     docker:
@@ -12,6 +12,7 @@ jobs:
            PGHOST: localhost
            PGUSER: alc_fans
            RAILS_ENV: test
+           CC_TEST_REPORTER_ID: ${CC_TEST_REPORTER_ID}
 
        - image: postgres:9.5
          environment:
@@ -41,6 +42,13 @@ jobs:
           key: v1-dependencies-{{ checksum "Gemfile.lock" }}
 
       - run:
+          name:  Download cc-test-reporter
+          command: |
+            mkdir -p tmp/
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > /tmp/cc-test-reporter
+            chmod +x /tmp/cc-test-reporter
+
+      - run:
           name: Wait for DB
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
 
@@ -53,9 +61,17 @@ jobs:
       - run:
           name: run tests
           command: |
+            ./tmp/cc-test-reporter before-build
             mkdir /tmp/test-results
-
             bundle exec rspec --out /tmp/test-results/rspec.xml spec
+            ./tmp/cc-test-reporter after-build
+
+      - run:
+          name: Upload coverage results to Code Climate
+          command: |
+            /tmp/cc-test-reporter sum-coverage -p 1 -o /tmp/codeclimate.total.json tmp/codeclimate.*.json
+            /tmp/cc-test-reporter upload-coverage -i /tmp/codeclimate.total.json
+            sed -n -e 24p /tmp/codeclimate.total.json
 
       # collect reports
       - store_test_results:
